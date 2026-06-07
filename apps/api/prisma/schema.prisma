@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  slug        String       @unique
+  name        String
+  initial     String
+  tone        String
+  feedRecords FeedRecord[]
+  createdAt   DateTime     @default(now())
+}
+
+model Plant {
+  id          Int               @id @default(autoincrement())
+  name        String
+  nick        String
+  location    String
+  feedNote    String
+  color       String
+  initial     String
+  favourite   Boolean           @default(false)
+  startedAt   DateTime
+  schedules   FeedingSchedule[]
+  feedRecords FeedRecord[]
+  snoozes     Snooze[]
+  createdAt   DateTime          @default(now())
+}
+
+model FeedingSchedule {
+  id           Int      @id @default(autoincrement())
+  plantId      Int
+  plant        Plant    @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  feed         String
+  everyDays    Int
+  activeMonths Int[]
+  createdAt    DateTime @default(now())
+
+  @@index([plantId])
+}
+
+model FeedRecord {
+  id        Int      @id @default(autoincrement())
+  plantId   Int
+  plant     Plant    @relation(fields: [plantId], references: [id])
+  byUserId  Int
+  user      User     @relation(fields: [byUserId], references: [id])
+  feed      String
+  fedAt     DateTime
+  dueDate   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([plantId, fedAt])
+}
+
+model Snooze {
+  id          Int      @id @default(autoincrement())
+  plantId     Int
+  plant       Plant    @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  feed        String
+  dueDate     DateTime
+  deferToDate DateTime
+  createdAt   DateTime @default(now())
+
+  @@unique([plantId, feed, dueDate])
+}

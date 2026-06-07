@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: longstone-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: longstone
+      POSTGRES_PASSWORD: longstone
+      POSTGRES_DB: longstone
+    ports:
+      - "5433:5432"
+    volumes:
+      - longstone-pg:/var/lib/postgresql/data
+
+volumes:
+  longstone-pg:

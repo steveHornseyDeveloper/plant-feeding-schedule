@@ -1,0 +1,57 @@
+:root {
+  --bg: #f8f5ec;
+  --bg-deep: #eee8d6;
+  --ink: #1f2e23;
+  --ink-soft: #3a4d3f;
+  --moss: #3f6b4a;
+  --leaf: #5a8e54;
+  --bloom: #c79a4a;
+  --wisteria: #7a5b8e;
+  --card: #fffdf8;
+  --card-edge: rgba(63, 107, 74, 0.12);
+  --card-edge-rust: #c47a4a55;
+  --rust: #a85a2a;
+  --rust-dot: #c47a4a;
+  --stone-soft: #e3dac3;
+  --stone-i: 1;
+  --radius-card: 18px;
+  --radius-sub: 14px;
+  --radius-btn: 12px;
+  --font-serif: "DM Serif Display", "EB Garamond", Georgia, serif;
+  --font-body: Sora, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

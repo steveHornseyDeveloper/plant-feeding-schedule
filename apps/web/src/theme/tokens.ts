@@ -1,0 +1,15 @@
+export const VERDURE = {
+  bg: '#f8f5ec',
+  bgDeep: '#eee8d6',
+  ink: '#1f2e23',
+  inkSoft: '#3a4d3f',
+  moss: '#3f6b4a',
+  leaf: '#5a8e54',
+  bloom: '#c79a4a',
+  wisteria: '#7a5b8e',
+  card: '#fffdf8',
+  cardEdge: 'rgba(63, 107, 74, 0.12)',
+  stoneSoft: '#e3dac3',
+  rust: '#a85a2a',
+  rustDot: '#c47a4a',
+} as const;

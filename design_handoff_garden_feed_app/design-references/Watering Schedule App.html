@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Longstone — Garden Feed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  html, body { margin: 0; padding: 0; background: #efe7d2; font-family: Inter, system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  /* Stone-rail intensity controlled at the artboard level via --stone-i */
+  .stone-control .ds-rail { opacity: var(--stone-i, 1); }
+  .stone-control [data-stone-band] {
+    height: calc(60px + var(--stone-i, 1) * 14px);
+    transition: opacity 220ms ease;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="android-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="data.jsx"></script>
+<script type="text/babel" src="botanical.jsx"></script>
+<script type="text/babel" src="verdure.jsx"></script>
+<script type="text/babel" src="drystone.jsx"></script>
+
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "stoneIntensity": 1
+}/*EDITMODE-END*/;
+
+// Wrap a phone screen with a "stone-control" so the --stone-i variable cascades.
+function PhoneScreen({ children, stoneIntensity }) {
+  return (
+    <div className="stone-control" style={{ height: '100%', width: '100%', '--stone-i': stoneIntensity, position: 'relative' }}>
+      {children}
+    </div>
+  );
+}
+
+// Each artboard hosts one screen rendered with a shared fed-state map.
+function ArtboardWrap({ device, children }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 0 }}>
+      {children}
+    </div>
+  );
+}
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  // Shared "fed" state across artboards so marking on one phone updates the
+  // mirror on the partner's phone — sells the two-user sync story.
+  const [fedMap, setFedMap] = React.useState({});
+  const onMarkFed = (key, who) => {
+    setFedMap(prev => ({ ...prev, [key]: who }));
+    // auto-clear after 6s so the state is replayable in the demo
+    setTimeout(() => setFedMap(prev => {
+      const n = { ...prev }; delete n[key]; return n;
+    }), 6000);
+  };
+
+  const stoneI = t.stoneIntensity;
+
+  // Render helpers — keep frame sizing tidy.
+  const iosToday   = (who) => (
+    <IOSDevice width={360} height={760} dark={false}>
+      <PhoneScreen stoneIntensity={stoneI}>
+        <VerdureToday stoneIntensity={stoneI} fedMap={fedMap} onMarkFed={onMarkFed}/>
+      </PhoneScreen>
+    </IOSDevice>
+  );
+  const iosCal = (
+    <IOSDevice width={360} height={760}>
+      <PhoneScreen stoneIntensity={stoneI}>
+        <VerdureCalendar stoneIntensity={stoneI}/>
+      </PhoneScreen>
+    </IOSDevice>
+  );
+  const andToday = (
+    <AndroidDevice width={372} height={760}>
+      <PhoneScreen stoneIntensity={stoneI}>
+        <VerdureToday stoneIntensity={stoneI} fedMap={fedMap} onMarkFed={onMarkFed}/>
+      </PhoneScreen>
+    </AndroidDevice>
+  );
+
+  const dsIosToday = (
+    <IOSDevice width={360} height={760}>
+      <PhoneScreen stoneIntensity={stoneI}>
+        <DrystoneToday stoneIntensity={stoneI} fedMap={fedMap} onMarkFed={onMarkFed}/>
+      </PhoneScreen>
+    </IOSDevice>
+  );
+  const dsIosCal = (
+    <IOSDevice width={360} height={760}>
+      <PhoneScreen stoneIntensity={stoneI}>
+        <DrystoneCalendar stoneIntensity={stoneI}/>
+      </PhoneScreen>
+    </IOSDevice>
+  );
+  const dsAnd = (
+    <AndroidDevice width={372} height={760}>
+      <PhoneScreen stoneIntensity={stoneI}>
+        <DrystoneToday stoneIntensity={stoneI} fedMap={fedMap} onMarkFed={onMarkFed}/>
+      </PhoneScreen>
+    </AndroidDevice>
+  );
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection id="verdure" title="Verdure" subtitle="Soft botanical · watercolor green · whispered limestone">
+          <DCArtboard id="v-ios-today" label="iOS · Today" width={400} height={800}>
+            <div style={{ padding: 20 }} data-screen-label="01 Verdure · iOS Today">{iosToday()}</div>
+          </DCArtboard>
+          <DCArtboard id="v-ios-cal" label="iOS · Calendar" width={400} height={800}>
+            <div style={{ padding: 20 }} data-screen-label="02 Verdure · iOS Calendar">{iosCal}</div>
+          </DCArtboard>
+          <DCArtboard id="v-and-today" label="Android · Today" width={412} height={800}>
+            <div style={{ padding: 20 }} data-screen-label="03 Verdure · Android Today">{andToday}</div>
+          </DCArtboard>
+        </DCSection>
+        <DCSection id="drystone" title="Drystone" subtitle="Limestone-led · stacked-stone motif · editorial mossy greens">
+          <DCArtboard id="d-ios-today" label="iOS · Today" width={400} height={800}>
+            <div style={{ padding: 20 }} data-screen-label="04 Drystone · iOS Today">{dsIosToday}</div>
+          </DCArtboard>
+          <DCArtboard id="d-ios-cal" label="iOS · Calendar" width={400} height={800}>
+            <div style={{ padding: 20 }} data-screen-label="05 Drystone · iOS Calendar">{dsIosCal}</div>
+          </DCArtboard>
+          <DCArtboard id="d-and-today" label="Android · Today" width={412} height={800}>
+            <div style={{ padding: 20 }} data-screen-label="06 Drystone · Android Today">{dsAnd}</div>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel title="Tweaks" defaultPosition={{ right: 20, bottom: 20 }}>
+        <TweakSection title="Stone hint">
+          <TweakSlider label="Drystone intensity"
+            value={t.stoneIntensity} min={0} max={1.5} step={0.1}
+            onChange={(v) => setTweak('stoneIntensity', v)}/>
+          <div style={{
+            fontSize: 11, color: '#7a8a7c', lineHeight: 1.4, marginTop: 6,
+            fontFamily: 'Inter, system-ui',
+          }}>
+            Pull the drystone wall in or out — from a faint plinth to a full
+            limestone band echoing the converted stables.
+          </div>
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
