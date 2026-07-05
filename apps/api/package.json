@@ -17,7 +17,7 @@
     "prisma:seed": "prisma db seed"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node_modules/.bin/tsx prisma/seed.ts"
   },
   "dependencies": {
     "@longstone/shared": "workspace:*",
