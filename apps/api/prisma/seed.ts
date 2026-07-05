@@ -26,7 +26,7 @@ async function main() {
   //    Fortnightly Mar-May, weekly Jun-Aug. Spring fortnightly cycle is in
   //    progress (next due ~30 May) and the weekly summer cadence kicks in
   //    from 1 June. All forward-looking.
-  await prisma.plant.create({
+  const fig = await prisma.plant.create({
     data: {
       name: 'Brown Turkey fig',
       nick: 'In greenhouse',
@@ -67,7 +67,7 @@ async function main() {
   // 3. Apple trees (established, productive) - full four-phase regime.
   //    Spring balanced N is already past its window but May-Jun potash,
   //    Jun-Jul foliar seaweed, and Oct ripening feeds are all upcoming.
-  await prisma.plant.create({
+  const appleTrees = await prisma.plant.create({
     data: {
       name: 'Apple trees',
       nick: 'Established · productive',
@@ -240,7 +240,7 @@ async function main() {
 
   // 11. Hydrangeas - ericaceous feed OVERDUE from 4 April task list, never
   //     applied. Monthly aluminium sulphate Mar-Aug, all unfulfilled so far.
-  await prisma.plant.create({
+  const hydrangeas = await prisma.plant.create({
     data: {
       name: 'Hydrangeas',
       nick: 'Driveway border',
@@ -279,7 +279,7 @@ async function main() {
 
   // 13. Passiflora caerulea - intentionally minimal. Spring slow-release
   //     window has passed for 2026 but the schedule recurs next year.
-  await prisma.plant.create({
+  const passiflora = await prisma.plant.create({
     data: {
       name: 'Passiflora caerulea',
       nick: 'Blue passionflower',
@@ -298,7 +298,7 @@ async function main() {
 
   // 14. Young Wisteria - April balanced feed done 4 Apr. May and June
   //     balanced feeds still upcoming to support establishment.
-  await prisma.plant.create({
+  const wisteriaYoung = await prisma.plant.create({
     data: {
       name: 'Wisteria (young)',
       nick: 'Establishing · 6+ months',
@@ -318,7 +318,7 @@ async function main() {
   // 15. Established Wisteria - NOT in Notion care guide. No feeding has
   //     happened. Spring balanced N + Mar/Apr potash are OVERDUE; Jun/Jul
   //     summer potash is upcoming.
-  await prisma.plant.create({
+  const wisteriaEstablished = await prisma.plant.create({
     data: {
       name: 'Wisteria (established)',
       nick: 'Southwest wall · trained',
@@ -335,6 +335,35 @@ async function main() {
         ],
       },
     },
+  });
+
+  // Completed feeds. Recorded from what was actually applied on the day.
+  //
+  // 21 Jun 2026: fig, established wisteria, young wisteria, apples,
+  //   hydrangeas, passiflora. (Roses were NOT fed.) The wisterias, apples
+  //   and passiflora were fed with liquid tomato feed on the day, applied
+  //   as a base/drip-line drench; the `feed` string on each record names
+  //   the scheduled feed that application satisfies, so records reconcile
+  //   against each plant's FeedingSchedule.
+  // 2 Jul 2026: fig only (weekly summer cadence). Strawberries, cucumber
+  //   and pepper were also fed on 2 Jul but are not Plant records in this
+  //   seed, so no FeedRecords are created for them.
+  const jun21 = new Date('2026-06-21T12:00:00Z');
+  const jul02 = new Date('2026-07-02T12:00:00Z');
+
+  await prisma.feedRecord.createMany({
+    data: [
+      // 21 Jun 2026
+      { plantId: fig.id,                 byUserId: stevie.id, feed: 'Tomato feed',                  fedAt: jun21, dueDate: jun21 },
+      { plantId: wisteriaEstablished.id, byUserId: stevie.id, feed: 'Sulphate of potash',          fedAt: jun21, dueDate: jun21 },
+      { plantId: wisteriaYoung.id,       byUserId: stevie.id, feed: 'Growmore (balanced)',         fedAt: jun21, dueDate: jun21 },
+      { plantId: appleTrees.id,          byUserId: stevie.id, feed: 'Sulphate of potash',          fedAt: jun21, dueDate: jun21 },
+      { plantId: hydrangeas.id,          byUserId: stevie.id, feed: 'Aluminium sulphate (monthly)', fedAt: jun21, dueDate: jun21 },
+      { plantId: passiflora.id,          byUserId: stevie.id, feed: 'Growmore (balanced)',         fedAt: jun21, dueDate: jun21 },
+
+      // 2 Jul 2026
+      { plantId: fig.id,                 byUserId: stevie.id, feed: 'Tomato feed',                  fedAt: jul02, dueDate: jul02 },
+    ],
   });
 
   console.log('Seed complete.');
